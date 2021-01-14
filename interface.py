@@ -1,8 +1,8 @@
 import ctypes
 from ctypes import *
 
-AMC = ctypes.cdll.LoadLibrary
-lib_amc = AMC("./driver/amc4030/AMC4030.dll")
+AMC = ctypes.WinDLL
+lib_amc = AMC("C:/Users/Developer/PycharmProjects/SILAR/SILARRAZER/driver/amc4030/AMC4030.dll")
 print("load of AMC4030.dll succeed")
 
 
@@ -21,8 +21,12 @@ def jog(API,axis,distance,speed):
     return response
 
 
+
+
 response2 = set_communication(lib_amc, 2)
 response3 = open_link(lib_amc)
 response4 = jog(lib_amc,0,24,4)
-
+print(response2)
+print(response3)
+print(response4)
 
