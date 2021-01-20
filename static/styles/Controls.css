@@ -113,6 +113,11 @@ body {
     flex-wrap: wrap;
 }
 
+.pip {
+  height: 30%;
+  width: 30%;
+}
+
 /*
  * Cover
  */

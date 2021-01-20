@@ -2,13 +2,10 @@ import ctypes
 from ctypes import *
 from pyfirmata import Arduino, util
 from time import sleep
+import copy
 
 board = Arduino('COM6')  # Change to your port
 print("Start blinking D13")
-
-AMC = ctypes.WinDLL
-lib_amc = AMC("C:/Users/Developer/PycharmProjects/SILAR/SILARRAZER/driver/amc4030/AMC4030.dll")
-print("load of AMC4030.dll succeed")
 
 
 def set_communication(API, comNumber):
@@ -20,27 +17,79 @@ def open_link(API):
     response = API.COM_API_OpenLink(ctypes.c_int(24), ctypes.c_int(115200))
     return response
 
-
+#Move desired axis by a certain distance and speed
 def jog(API, axis, distance, speed):
+    response = set_communication(API, 2)
+    response = open_link(API)
     response = API.COM_API_Jog(ctypes.c_int(axis), ctypes.c_float(distance), ctypes.c_float(speed))
     return response
 
-
+#Go to home, if 0 or 1 depending if you want each axis to go to home or not
 def home(API, X, Y, Z):
+    set_communication(API, 2)
+    open_link(API)
     response = API.COM_API_Home(ctypes.c_int(X), ctypes.c_int(Y), ctypes.c_int(Z))
     return response
 
+#Get coordinates of planes X Y and Z
+def get_coordinates(API, buffer):
+    API.COM_API_GetMachineStatus(ctypes.byref(buffer))
+    smb_request = SMB_REQUEST()
+    smb_request.receiveSome(buffer.raw)
+    return smb_request.nPos
 
-def getMachineStatus(API, buffer):
-    response = API.COM_API_GetMachineStatus(ctypes.byref(buffer))
+
+def start():
+    AMC = ctypes.WinDLL
+    lib_amc = AMC("C:/Users/Developer/PycharmProjects/SILAR/SILARRAZER/driver/amc4030/AMC4030.dll")
+    print("load of AMC4030.dll succeed")
+    home(lib_amc,1,1,1)
+    sleep(15)
+    return lib_amc
+
+
+def arm_up(API):
+    response = home(API,0,0,1)
     return response
 
 
-response2 = set_communication(lib_amc, 2)
-response3 = open_link(lib_amc)
-home(lib_amc, 0, 0, 1)
-sleep(10)
-counter = 0
+def calculate_offset(start, goal):
+    return goal - start
+
+
+def go_to_point(points, cycles):
+    API = start()
+    buffer = ctypes.create_string_buffer(1000)
+    current_position = get_coordinates(API, buffer)
+    z_home = copy.deepcopy(current_position[2])
+    for x in range(0,cycles):
+        for point in points:
+            jog(API,0,calculate_offset(current_position[0]/100000,point[0]),20)
+            jog(API, 1, calculate_offset(current_position[1]/100000, point[1]), 20)
+
+
+            while ((current_position[0] != (point[0] * 100000)) or (current_position[1] != (point[1] * 100000))):
+                current_position = get_coordinates(API, buffer)
+                sleep(2)
+
+            current_position = get_coordinates(API, buffer)
+
+            jog(API, 2, calculate_offset(current_position[2] / 100000, point[2]), 20)
+
+
+            while current_position[2] != (point[2] * 100000):
+                current_position = get_coordinates(API, buffer)
+                sleep(1)
+
+            board.digital[13].write(1)
+            sleep(20)
+            board.digital[13].write(0)
+            arm_up(API)
+            while current_position[2] != z_home:
+                current_position = get_coordinates(API, buffer)
+                sleep(1)
+            current_position = get_coordinates(API, buffer)
+    home(API,1,1,1)
 
 nposarr = c_uint32 * 3
 nspeedarr = c_uint32 * 3
@@ -65,39 +114,4 @@ class SMB_REQUEST(Structure):
         ctypes.memmove(ctypes.addressof(self), bytes, fit)
 
 
-smb_request = SMB_REQUEST()
 
-bigbuffer = ctypes.create_string_buffer(1000)
-
-while counter < 6:
-    board.digital[13].write(1)
-    response2 = set_communication(lib_amc, 2)
-    response3 = open_link(lib_amc)
-    response5 = jog(lib_amc, 2, -25, 10)
-    print(response5)
-    sleep(4)
-    getMachineStatus(lib_amc, bigbuffer)
-    smb_request.receiveSome(bigbuffer.raw)
-    print("X: " + str(smb_request.nPos[0]))
-    print("Y: " + str(smb_request.nPos[1]))
-    print("Z: " + str(smb_request.nPos[2]))
-    board.digital[13].write(0)
-    response2 = set_communication(lib_amc, 2)
-    response3 = open_link(lib_amc)
-    response7 = jog(lib_amc, 2, 25, 10)
-    print(response7)
-    sleep(2)
-    counter = counter + 1
-    sleep(3)
-    print(counter)
-    getMachineStatus(lib_amc, bigbuffer)
-    smb_request.receiveSome(bigbuffer.raw)
-    print("X: " + str(smb_request.nPos[0]))
-    print("Y: " + str(smb_request.nPos[1]))
-    print("Z: " + str(smb_request.nPos[2]))
-
-print(response2)
-print(response3)
-# print(response4)
-print(response5)
-print(counter)
