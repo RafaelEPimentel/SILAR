@@ -7,6 +7,40 @@ import copy
 board = Arduino('COM6')  # Change to your port
 print("Start blinking D13")
 
+currentcycle = 0;
+x = 0;
+y = 0;
+z = 0;
+
+def getcurrentcycle():
+    return currentcycle
+
+def updatecurrentcycle(x):
+    global currentcycle
+    currentcycle = x
+
+
+def getX():
+    return x
+
+def updateX(X):
+    global x
+    x = X
+
+def getY():
+    return y
+
+def updateY(Y):
+    global y
+    y = Y
+
+def getZ():
+    return z
+
+def updateZ(Z):
+    global z
+    z = Z
+
 
 def set_communication(API, comNumber):
     response = API.COM_API_SetComType(ctypes.c_int(comNumber))
@@ -38,7 +72,7 @@ def get_coordinates(API, buffer):
     smb_request.receiveSome(buffer.raw)
     return smb_request.nPos
 
-
+#load DLL and go home in all axis, returns DLL object
 def start():
     AMC = ctypes.WinDLL
     lib_amc = AMC("C:/Users/Developer/PycharmProjects/SILAR/SILARRAZER/driver/amc4030/AMC4030.dll")
@@ -63,31 +97,44 @@ def go_to_point(points, cycles):
     current_position = get_coordinates(API, buffer)
     z_home = copy.deepcopy(current_position[2])
     for x in range(0,cycles):
+        updatecurrentcycle(x)
         for point in points:
-            jog(API,0,calculate_offset(current_position[0]/100000,point[0]),20)
-            jog(API, 1, calculate_offset(current_position[1]/100000, point[1]), 20)
+            jog(API,0,calculate_offset(current_position[0]/100000,point[0]),30)
+            jog(API, 1, calculate_offset(current_position[1]/100000, point[1]), 30)
 
 
             while ((current_position[0] != (point[0] * 100000)) or (current_position[1] != (point[1] * 100000))):
                 current_position = get_coordinates(API, buffer)
-                sleep(2)
+                updateX(current_position[0]/100000)
+                updateY(current_position[1]/100000)
+                updateZ(current_position[2]/100000)
+                sleep(0.5)
 
             current_position = get_coordinates(API, buffer)
+            updateX(current_position[0] / 100000)
+            updateY(current_position[1] / 100000)
+            updateZ(current_position[2] / 100000)
 
-            jog(API, 2, calculate_offset(current_position[2] / 100000, point[2]), 20)
+            jog(API, 2, calculate_offset(current_position[2] / 100000, point[2]), 30)
 
 
             while current_position[2] != (point[2] * 100000):
                 current_position = get_coordinates(API, buffer)
-                sleep(1)
+                updateX(current_position[0] / 100000)
+                updateY(current_position[1] / 100000)
+                updateZ(current_position[2] / 100000)
+                sleep(0.5)
 
             board.digital[13].write(1)
-            sleep(20)
+            sleep(10)
             board.digital[13].write(0)
             arm_up(API)
             while current_position[2] != z_home:
                 current_position = get_coordinates(API, buffer)
-                sleep(1)
+                updateX(current_position[0] / 100000)
+                updateY(current_position[1] / 100000)
+                updateZ(current_position[2] / 100000)
+                sleep(0.5)
             current_position = get_coordinates(API, buffer)
     home(API,1,1,1)
 

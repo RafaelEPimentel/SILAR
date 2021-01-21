@@ -1,5 +1,5 @@
-from flask import Flask, render_template, request, redirect
-from interface import go_to_point
+from flask import Flask, render_template, request, redirect, jsonify
+from interface import go_to_point, getcurrentcycle, getX, getY, getZ
 
 app = Flask(__name__)
 
@@ -24,8 +24,16 @@ def start_experiment():
     print(cycles)
     go_to_point(points,cycles)
 
-
     return redirect('/')
 
+@app.route("/getglobals", methods= ['GET'])
+def get_globals():
+    return jsonify({
+        "currentcycle":  getcurrentcycle() + 1,
+        "x": getX(),
+        "y": getY(),
+        "z": getZ(),
+    })
+
 if __name__ == '__main__':
-    app.run()
+    app.run(host="0.0.0.0")
