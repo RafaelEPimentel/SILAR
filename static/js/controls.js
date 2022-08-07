@@ -17,12 +17,15 @@ $(document).ready(function(){
           '                    <span class="input-group-text" id="basic-addon1">Z</span>\n' +
           '                    <input name="z[]" type="number" class="form-control" placeholder="Z Coordinates" aria-label="Z" aria-describedby="basic-addon1">\n' +
           '                    </div>\n' +
+          '                    <div class="input-group mb-3">\n' +
+          '                    <span class="input-group-text" id="basic-addon1">Time</span>\n' +
+          '                    <input name="time[]" type="number" class="form-control" placeholder="Time at point" aria-label="Time" aria-describedby="basic-addon1">\n' +
+          '                    </div>\n' +
           '                </div>\n' +
           '            </div>';
       $("#cardcontainer").after(new_add);
   });
   setInterval(function(){
-      console.log("poop")
       $.ajax({
             url : '/getglobals',
             success: function(data) {

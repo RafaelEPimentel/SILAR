@@ -91,7 +91,7 @@ def calculate_offset(start, goal):
     return goal - start
 
 
-def go_to_point(points, cycles):
+def go_to_point(points, cycles, ceiling, speed):
     API = start()
     buffer = ctypes.create_string_buffer(1000)
     current_position = get_coordinates(API, buffer)
@@ -99,8 +99,8 @@ def go_to_point(points, cycles):
     for x in range(0,cycles):
         updatecurrentcycle(x)
         for point in points:
-            jog(API,0,calculate_offset(current_position[0]/100000,point[0]),30)
-            jog(API, 1, calculate_offset(current_position[1]/100000, point[1]), 30)
+            jog(API,0,calculate_offset(current_position[0]/100000,point[0]), speed)
+            jog(API, 1, calculate_offset(current_position[1]/100000, point[1]), speed)
 
 
             while ((current_position[0] != (point[0] * 100000)) or (current_position[1] != (point[1] * 100000))):
@@ -115,7 +115,7 @@ def go_to_point(points, cycles):
             updateY(current_position[1] / 100000)
             updateZ(current_position[2] / 100000)
 
-            jog(API, 2, calculate_offset(current_position[2] / 100000, point[2]), 30)
+            jog(API, 2, calculate_offset(current_position[2] / 100000, point[2]), speed)
 
 
             while current_position[2] != (point[2] * 100000):
@@ -125,12 +125,13 @@ def go_to_point(points, cycles):
                 updateZ(current_position[2] / 100000)
                 sleep(0.5)
 
-            board.digital[13].write(1)
-            sleep(10)
-            board.digital[13].write(0)
-            arm_up(API)
+
+            sleep(point[3])
+
+
+            jog(API,2, calculate_offset(current_position[2] / 100000, ceiling), speed)
             while current_position[2] != z_home:
-                current_position = get_coordinates(API, buffer)
+                current_position = get_coordinates(API, ceiling)
                 updateX(current_position[0] / 100000)
                 updateY(current_position[1] / 100000)
                 updateZ(current_position[2] / 100000)

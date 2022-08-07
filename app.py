@@ -13,16 +13,20 @@ def start_experiment():
     x = request.form.getlist('x[]')
     y = request.form.getlist('y[]')
     z = request.form.getlist('z[]')
+    time = request.form.getlist('time[]')
     cycles = int(request.form['Cycles'])
+    ceiling = int(request.form['Ceiling'])
+    speed = int(request.form['Speed'])
     points = []
 
     for element in range(len(x)):
-        point = [int(x[element]),int(y[element]),int(z[element])]
+        point = [int(x[element]),int(y[element]),int(z[element]), int(time[element])]
         points.append(point)
 
     print(points)
     print(cycles)
-    go_to_point(points,cycles)
+    print(ceiling)
+    go_to_point(points,cycles,ceiling, speed)
 
     return redirect('/')
 
