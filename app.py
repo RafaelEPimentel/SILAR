@@ -13,6 +13,7 @@ def start_experiment():
     x = request.form.getlist('x[]')
     y = request.form.getlist('y[]')
     z = request.form.getlist('z[]')
+    zspeed = request.form.getlist('zspeed[]')
     time = request.form.getlist('time[]')
     cycles = int(request.form['Cycles'])
     ceiling = int(request.form['Ceiling'])
@@ -20,7 +21,9 @@ def start_experiment():
     points = []
 
     for element in range(len(x)):
-        point = [int(x[element]),int(y[element]),int(z[element]), int(time[element])]
+        if(float(z[element]) >= float(ceiling)):
+            return('Error, point ' + str(element + 1) + ' is not lower than the set ceiling')
+        point = [int(x[element]),int(y[element]),int(z[element]), int(time[element]), float(zspeed[element])]
         points.append(point)
 
     print(points)

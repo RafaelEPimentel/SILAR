@@ -4,7 +4,8 @@ from pyfirmata import Arduino, util
 from time import sleep
 import copy
 
-board = Arduino('COM6')  # Change to your port
+board = Arduino('COM3')  # Change to your port
+board.exit()
 print("Start blinking D13")
 
 currentcycle = 0;
@@ -62,7 +63,7 @@ def jog(API, axis, distance, speed):
 def home(API, X, Y, Z):
     set_communication(API, 2)
     open_link(API)
-    response = API.COM_API_Home(ctypes.c_int(X), ctypes.c_int(Y), ctypes.c_int(Z))
+    response =      (ctypes.c_int(X), ctypes.c_int(Y), ctypes.c_int(Z))
     return response
 
 #Get coordinates of planes X Y and Z
@@ -75,10 +76,10 @@ def get_coordinates(API, buffer):
 #load DLL and go home in all axis, returns DLL object
 def start():
     AMC = ctypes.WinDLL
-    lib_amc = AMC("C:/Users/Developer/PycharmProjects/SILAR/SILARRAZER/driver/amc4030/AMC4030.dll")
+    lib_amc = AMC("C:/Users/silar/PycharmProjects/SILAR/driver/amc4030/AMC4030.dll")
     print("load of AMC4030.dll succeed")
     home(lib_amc,1,1,1)
-    sleep(15)
+    sleep(12)
     return lib_amc
 
 
@@ -93,6 +94,7 @@ def calculate_offset(start, goal):
 
 def go_to_point(points, cycles, ceiling, speed):
     API = start()
+    #board = Arduino('COM3')
     buffer = ctypes.create_string_buffer(1000)
     current_position = get_coordinates(API, buffer)
     z_home = copy.deepcopy(current_position[2])
@@ -115,7 +117,7 @@ def go_to_point(points, cycles, ceiling, speed):
             updateY(current_position[1] / 100000)
             updateZ(current_position[2] / 100000)
 
-            jog(API, 2, calculate_offset(current_position[2] / 100000, point[2]), speed)
+            jog(API, 2, calculate_offset(current_position[2] / 100000, point[2]), point[4])
 
 
             while current_position[2] != (point[2] * 100000):
@@ -129,15 +131,18 @@ def go_to_point(points, cycles, ceiling, speed):
             sleep(point[3])
 
 
-            jog(API,2, calculate_offset(current_position[2] / 100000, ceiling), speed)
-            while current_position[2] != z_home:
-                current_position = get_coordinates(API, ceiling)
+            jog(API,2, calculate_offset(current_position[2] / 100000, ceiling), point[4])
+            while current_position[2]/100000 != ceiling:
+                print(current_position[2])
+                print(ceiling)
+                current_position = get_coordinates(API, buffer)
                 updateX(current_position[0] / 100000)
                 updateY(current_position[1] / 100000)
                 updateZ(current_position[2] / 100000)
                 sleep(0.5)
             current_position = get_coordinates(API, buffer)
     home(API,1,1,1)
+    board.exit()
 
 nposarr = c_uint32 * 3
 nspeedarr = c_uint32 * 3

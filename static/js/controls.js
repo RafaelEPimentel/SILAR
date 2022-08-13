@@ -21,6 +21,10 @@ $(document).ready(function(){
           '                    <span class="input-group-text" id="basic-addon1">Time</span>\n' +
           '                    <input name="time[]" type="number" class="form-control" placeholder="Time at point" aria-label="Time" aria-describedby="basic-addon1">\n' +
           '                    </div>\n' +
+          '                    <div class="input-group mb-3">\n' +
+          '                    <span class="input-group-text" id="basic-addon1">Z Speed</span>\n' +
+          '                    <input name="zspeed[]" type="number" class="form-control" placeholder="Z Speed" aria-label="zspeed" aria-describedby="basic-addon1">\n' +
+          '                    </div>\n' +
           '                </div>\n' +
           '            </div>';
       $("#cardcontainer").after(new_add);
@@ -46,3 +50,4 @@ $(document).ready(function(){
             }
         });},1000)
 });
+
