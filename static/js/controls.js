@@ -22,8 +22,12 @@ $(document).ready(function(){
           '                    <input name="time[]" type="number" class="form-control" placeholder="Time at point" aria-label="Time" aria-describedby="basic-addon1">\n' +
           '                    </div>\n' +
           '                    <div class="input-group mb-3">\n' +
-          '                    <span class="input-group-text" id="basic-addon1">Z Speed</span>\n' +
-          '                    <input name="zspeed[]" type="number" class="form-control" placeholder="Z Speed" aria-label="zspeed" aria-describedby="basic-addon1">\n' +
+          '                    <span class="input-group-text" id="basic-addon1">Z Speed Up</span>\n' +
+          '                    <input name="zspeed[]" type="number" class="form-control" placeholder="Z Speed Up" aria-label="zspeed" aria-describedby="basic-addon1">\n' +
+          '                    </div>\n' +
+          '                    <div class="input-group mb-3">\n' +
+          '                    <span class="input-group-text" id="basic-addon1">Z Speed Down</span>\n' +
+          '                    <input name="zspeeddown[]" type="number" class="form-control" placeholder="Z Speed Down" aria-label="zspeeddown" aria-describedby="basic-addon1">\n' +
           '                    </div>\n' +
           '                </div>\n' +
           '            </div>';

@@ -117,7 +117,7 @@ def go_to_point(points, cycles, ceiling, speed):
             updateY(current_position[1] / 100000)
             updateZ(current_position[2] / 100000)
 
-            jog(API, 2, calculate_offset(current_position[2] / 100000, point[2]), point[4])
+            jog(API, 2, calculate_offset(current_position[2] / 100000, point[2]), point[5])
 
 
             while current_position[2] != (point[2] * 100000):
